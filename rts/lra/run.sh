@@ -44,10 +44,10 @@ NARAYANA_ZIP="narayana-full-5.9.9.Final-SNAPSHOT-bin.zip"
    echo "There is no Narayana zip at \$WORKSPACE directory at '$WORKSPACE/$NARAYANA_ZIP" && exit 1
 unzip "$WORKSPACE/$NARAYANA_ZIP"
 
-java $(getDebugArgs $PORT) -jar $NARAYANA_INSTALL_LOCATION/rts/lra/lra-coordinator-thorntail.jar -Dthorntail.http.port=8080 -Dthorntail.transactions.object-store-path=../lra-coordinator-logs &
+java $(getDebugArgs $PORT) -jar -Dquarkus.http.port=8080 -Dthorntail.transactions.object-store-path=../lra-coordinator-logs -jar $NARAYANA_INSTALL_LOCATION/rts/lra/lra-coordinator-runner.jar &
 ID1=$!
 ((PORT++))
-java $(getDebugArgs $PORT) -jar $NARAYANA_INSTALL_LOCATION/rts/lra/lra-coordinator-thorntail.jar -Dthorntail.http.port=8081 -Dthorntail.transactions.object-store-path=../flight-lra-coordinator-logs &
+java $(getDebugArgs $PORT) -jar -Dquarkus.http.port=8081 -Dthorntail.transactions.object-store-path=../flight-lra-coordinator-logs -jar $NARAYANA_INSTALL_LOCATION/rts/lra/lra-coordinator-runner.jar &
 ID2=$!
 ((PORT++))
 java $(getDebugArgs $PORT) -jar hotel-service/target/lra-test-thorntail.jar -Dthorntail.http.port=8082 &
@@ -70,7 +70,7 @@ echo -e "\n\n\n"
 BOOKINGID=$(curl -X POST "http://localhost:8084/?hotelName=TheGrand&flightNumber1=BA123&flightNumber2=RH456" -sS | jq -r ".id")
 echo "Booking ID was: $BOOKINGID"
 kill -9 $ID1
-java $(getDebugArgs 8787) -jar $NARAYANA_INSTALL_LOCATION/rts/lra/lra-coordinator-thorntail.jar -Dthorntail.http.port=8080 -Dthorntail.transactions.object-store-path=../lra-coordinator-logs &
+java $(getDebugArgs 8787) -Dquarkus.http.port=8080 -Dthorntail.transactions.object-store-path=../lra-coordinator-logs -jar $NARAYANA_INSTALL_LOCATION/rts/lra/lra-coordinator-runner.jar &
 ID1=$!
 echo "Waiting for all the coordinator to recover"
 sleep 40
